@@ -5,6 +5,9 @@
 #include <list>
 #include <semaphore>
 #include  <chrono>
+#define COUNT_OF_CHAIRS_ALL 10
+int COUNT_OF_CHAIRS_USED = 0;
+
 
 std::mutex mtx;             // mutex for critical section
 std::condition_variable cv; // condition variable for critical section  
@@ -32,7 +35,8 @@ void DoBarberWork(int num) {
     current++;
     std::cout << "Barber Starts\t";
     std::this_thread::sleep_for(std::chrono::milliseconds(rand()%500 + 500));
-    std::cout << "current NO of Customer is: " << current << "\t";;
+    std::cout << "current NO of Customer is: " << current << "\t";
+    COUNT_OF_CHAIRS_USED--;
     std::cout << "Barber Ends\n\n";
 
     /* Notify next threads to check if it is their turn */
@@ -55,8 +59,16 @@ int main() {
     for (int id = 0; id < threadnum; id++)
     {
         std::cout << "Customer NO " << id << " CREATED\n";
-        threads[id] = std::thread(DoBarberWork, id);
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
+        if (COUNT_OF_CHAIRS_USED >= COUNT_OF_CHAIRS_ALL)
+        {
+            std::cout << "Customer LEFT - NO FREE CHAIRS\n";
+        }
+        else
+        {
+            threads[id] = std::thread(DoBarberWork, id);
+            COUNT_OF_CHAIRS_USED++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
+        };
     }
 
    
@@ -64,10 +76,10 @@ int main() {
     runBarberShop(); // ОТКРЫТИЕ ПАРИКМАРЕРСКОЙ
 
     /* Merge all threads to the main thread */
-    for (int id = 0; id < threadnum; id++)
+    for (int id = 0; id < COUNT_OF_CHAIRS_ALL; id++)
         threads[id].join();
 
-    std::cout << std::endl;
+    std::cout <<"DONE\tBARBERSHOP CLOSED"<< std::endl;
 
     return 0;
 }
