@@ -34,7 +34,7 @@ void DoBarberWork(int num) {
     }
     current++;
     std::cout << "Barber Starts\t";
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%500 + 500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%1000+500));
     std::cout << "current NO of Customer is: " << current << "\t";
     COUNT_OF_CHAIRS_USED--;
     std::cout << "Barber Ends\n\n";
@@ -53,7 +53,9 @@ void runBarberShop() {
 int main() {
 
     int threadnum = 15;
- 
+
+    std::cout << "BARBERSHOP OPEN\n";
+    runBarberShop(); // ОТКРЫТИЕ ПАРИКМАРЕРСКОЙ
 
     /* Создание потоков ПОСЕТИТЕОЕЙ */
     for (int id = 0; id < threadnum; id++)
@@ -67,16 +69,12 @@ int main() {
         {
             threads[id] = std::thread(DoBarberWork, id);
             COUNT_OF_CHAIRS_USED++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 500+300));
         };
-    }
-
-   
-    std::cout << "BARBERSHOP OPEN\n";
-    runBarberShop(); // ОТКРЫТИЕ ПАРИКМАРЕРСКОЙ
+    }  
 
     /* Merge all threads to the main thread */
-    for (int id = 0; id < COUNT_OF_CHAIRS_ALL; id++)
+    for (int id = 0; id < threadnum; id++)
         threads[id].join();
 
     std::cout <<"DONE\tBARBERSHOP CLOSED"<< std::endl;
